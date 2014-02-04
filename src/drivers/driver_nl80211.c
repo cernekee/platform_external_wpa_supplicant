@@ -4236,6 +4236,13 @@ static void wpa_driver_nl80211_scan_timeout(void *eloop_ctx, void *timeout_ctx)
 	wpa_supplicant_event(timeout_ctx, EVENT_SCAN_RESULTS, NULL);
 }
 
+void XXX_SSID_LEAK(struct wpa_driver_scan_ssid *ssid)
+{
+	wpa_hexdump_ascii(MSG_ERROR,
+			  "nl80211: XXX leaking SSID name",
+			  ssid->ssid, ssid->ssid_len);
+	//while (1);
+}
 
 static struct nl_msg *
 nl80211_scan_common(struct wpa_driver_nl80211_data *drv, u8 cmd,
@@ -4265,6 +4272,8 @@ nl80211_scan_common(struct wpa_driver_nl80211_data *drv, u8 cmd,
 			wpa_hexdump_ascii(MSG_MSGDUMP, "nl80211: Scan SSID",
 					  params->ssids[i].ssid,
 					  params->ssids[i].ssid_len);
+			if (params->ssids[i].ssid_len)
+				XXX_SSID_LEAK(&params->ssids[i]);
 			if (nla_put(msg, i + 1, params->ssids[i].ssid_len,
 				    params->ssids[i].ssid) < 0)
 				goto fail;
@@ -4421,6 +4430,7 @@ static int wpa_driver_nl80211_sched_scan(void *priv,
 	struct nl_msg *msg;
 	size_t i;
 
+wpa_printf(MSG_INFO, "%s: scan %d SSIDs every %d ms", __FUNCTION__, params->num_ssids, interval);
 	wpa_dbg(drv->ctx, MSG_DEBUG, "nl80211: sched_scan request");
 
 #ifdef ANDROID

@@ -695,6 +695,7 @@ static void wpa_supplicant_global_ctrl_iface_receive(int sock, void *eloop_ctx,
 		return;
 	}
 	buf[res] = '\0';
+wpa_printf(MSG_INFO, "%s: '%s'\n", __FUNCTION__, buf);
 
 	if (os_strcmp(buf, "ATTACH") == 0) {
 		if (wpa_supplicant_ctrl_iface_attach(&priv->ctrl_dst, &from,
